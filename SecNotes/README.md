@@ -1,6 +1,12 @@
 # SECNOTES
+## Info
 The link to the machine is [SECNOTES](https://app.hackthebox.com/machines/SecNotes)
+[Enumeration](#enumeration)
+[Gaining Access](#gaining-access)
+[Elevation](#elevation)
+[Conclusion](#conclusion)
 
+## Writeup
 First and formost, we need to connect to the servers. We can do this with:
 ```bash
 sudo openvpn <path to vpn> 
@@ -10,19 +16,19 @@ Now that we have our VPN connection, we should reveiw our objective.
 
 With that being said, lets begin enumeration. 
 
-# Enumeration
+## Enumeration
 Enumeration is super important in real life tests, so to simulate that and enusure we are ready for testing, lets gather all the info we can on what we have. 
 
 First, I ran NMAP to get a basic layout as to what the machine offered. You can use your own scan but since this is CTF rather than a Pentest, we can be really loud if we wish. 
 ```bash
 nmap -A -T4 -Pn -p- 10.129.31.175 
 ```
-## Command Explanation
+### Command Explanation
 For those who do not know, -A combines multiple flags into one, defualt scripts (-sC), Operating System detection (-O), Version Detection (-sV) and Traceroute (--traceroute). The -T4 sets the timing template, faster is better and we are at 4/5. -Pn scans everything as if it were alive, bypassing some annoying fails, and -p- scans all 65 thousand ports instead of only the top ones.
 
 This scan revealed some interesting information, check the table below for summerized info or the picture for the full scan.
 
-## Table and Image
+### Table and Image
 ![Nmap](Images/nmap.png)
 | PORT | Service | Version | Notes |
 |-|-|-|-|
@@ -50,7 +56,7 @@ Once again, We were denied
 
 No matter though, my thoughts on this vector at this point mainly consist of the thought that you could run more tools such as lookupsid but, the CTF seems to be straying away from that path, so lets look at the webpages.
 
-## Webpages Vector
+### Webpages Vector
 As I said before, this vector looks more promising from the scan, so at this point in the test, I do beleive this is the right path. I  decided to use chromium linked up to burpsuite, just becuase I like to have easier setups, especially for spraying attacks with burpsuite.
 
 So, the webpage ports we saw earlier were 80 and 8808, both IIS. Lets check 80 first. 
@@ -75,10 +81,10 @@ In terms of FFUF, there were no subdomains, however, in terms of gobuster, there
 
 but all of those directories redirected back to login.php, the landing page.
 
-# Gaining Access
+## Gaining Access
 With our information gathered, we can being playing with what we have. I always think it is super important to see first what the site should do because, after all, to be a hacker is to operate outside of that.
 
-## Testing Functionality
+### Testing Functionality
 To test the intended functionality of the site, I created a new account under the name **John** with a password of **testtest** (minimum of six characters) and by doing so landed on the page *home.php*.
 ![Home.php](Images/home.php.png)
 
@@ -92,7 +98,7 @@ Although we can change our own password and it seems insecure since we do not ne
 
 At this point, we have concluded our test of the sites intended functionality, so lets move on to trying to break it.
 
-## Breaking the site
+### Breaking the site
 Right now, we cannot try any payloads throughout the entire site, so lets go back to basics and try to break the login page. The login page itself does not have the ability to be injected into since it hard checks if an account exists first, but if we create an account with the same name as an injection attack, that check would be allowed in since it techinically is an account, thus allowing an injection to actually be tested.
 With that being said I created an account with all feild set to: 
 > 'OR 1 OR'
@@ -102,7 +108,7 @@ Which is a simple SQL injection I like to use. When I tried to log in, it seemed
 
 When looking through notes, we can see there is a note called **New Site** which has SMB credentials and a link to where to go inside it!
 
-## SMB Vector (With new info)
+### SMB Vector (With new info)
 Even though we previously tested the SMB vector for just about anything, this just proves that we just did not have the neccesary info at the time so just remember as a penetration tester, do not be afraid to go back once you get new information.
 
 As I said earlier, I prefer enumerating SMB with SMBclient so the command I used here was:
@@ -169,6 +175,8 @@ and then:
 allowing us to get a connection. 
 ![netcat](Images/nc.png)
 
+## Elevation
+
 Now, it is time to elevate our privledges.
 After looking through our privledges we can see that we have a lot enables, but nothing we really can abuse such as Imperonate. 
 
@@ -216,7 +224,7 @@ we can copy both files onto our filesystem.
 and with a quick cat we can see our flags!
 ![flags](Images/flags.png)
 
-# Conclusion
+## Conclusion
 Thank you so much for reading through my walkthough of SecNotes! 
 I had a lot of fun making this, and hope you got a lot out of this. 
 If you have any further questions or concerns, just write me a message and I will respond! be ready for more writeups in the future.
