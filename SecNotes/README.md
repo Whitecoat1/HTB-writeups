@@ -1,9 +1,13 @@
 # SECNOTES
 ## Info
 The link to the machine is [SECNOTES](https://app.hackthebox.com/machines/SecNotes)
+
 [Enumeration](#enumeration)
+
 [Gaining Access](#gaining-access)
+
 [Elevation](#elevation)
+
 [Conclusion](#conclusion)
 
 ## Writeup
